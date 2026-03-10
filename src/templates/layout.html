@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if title %}
+        <title>MovieFy - {{ title }}</title>
+    {% else %}
+        <title>MovieFy</title>
+    {% endif %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+    <header class="fixed inset-x-0 top-0 bg-gradient-to-r from-slate-800 via-slate-900 to-blue-950 text-white px-6 lg:px-36 py-4 flex justify-between items-center z-50 mt-2 mx-20 rounded-[40px] animate-glow-breath animate-fadeIn">
+        <h1 class="font-Arial text-2xl font-bold tracking-wide animate-fadeIn">MovieFy</h1>
+        <nav class="sidebar mt-1.5 gap-6 font-light text-ms align-center justify-center hidden xl:flex"> 
+                <a href="{{'#home-section' if title not in ['Login', 'Register'] else url_for('home')}}"  class="text-white px-4 rounded-lg hover:bg-blue-700 transition duration-200 inline-block animate-fadeIn">Home</a>
+                <a href="{{'#about-section' if title not in ['Login', 'Register'] else url_for('home')}}" class="text-white px-4 rounded-lg hover:bg-blue-700 transition duration-200 inline-block animate-fadeIn">About</a>
+                <a href="{{'#m-section' if title not in ['Login', 'Register'] else url_for('home')}}" class="text-white px-4 rounded-lg hover:bg-blue-700 transition duration-200 inline-block animate-fadeIn">Movies</a>
+                <a href="{{'#contact-section' if title not in ['Login', 'Register'] else url_for('home')}}" class="text-white px-4 rounded-lg hover:bg-blue-700 transition duration-200 inline-block animate-fadeIn">Contact</a>
+        </nav>
+        <div class="gap-3 sidebar hidden xl:flex">
+        <a href="{{ '#' if title == 'Login' else url_for('login') }}">
+            <button class="w-24 bg-blue-700 text-white px-5 py-1.5 rounded-lg hover:bg-gray-900 transition animate-fadeIn"
+                    style="font-family: Arial, sans-serif;">
+                Login
+            </button>
+        </a>
+
+        <a href="{{ '#' if title == 'Register' else url_for('register') }}">
+            <button class="w-24 bg-slate-700 text-white px-5 py-1.5 rounded-lg hover:bg-gray-900 transition animate-fadeIn"
+                    style="font-family: Arial;">
+                Register
+            </button>
+        </a>
+        </div>
+
+        <div class="flex xl:hidden items-center justify-center cursor-pointer">
+            <a onclick="showSidebar()" class="hamburger"
+            ><svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="23px"
+              viewBox="0 -960 960 960"
+              width="24px"
+              fill="#e3e3e3"
+            >
+              <path
+                d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"
+              />
+            </svg>
+          </a>
+        </div>
+        
+    </header>
+
+    <div id="mobileSidebar" class="fixed top-0 right-0 h-full w-64 bg-slate-900 text-white hidden flex flex-col gap-5 p-6 z-50 animate-popRight">
+        <a onclick="hideSidebar()" class="mb-6 cursor-pointer">✕ Close</a>
+
+        <a href="{{'#home-section' if title not in ['Login', 'Register'] else url_for('home')}}"  class="text-white px-4 rounded-lg hover:bg-blue-700 transition duration-200 inline-block animate-fadeIn">Home</a>
+        <a href="{{'#about-section' if title not in ['Login', 'Register'] else url_for('home')}}" class="text-white px-4 rounded-lg hover:bg-blue-700 transition duration-200 inline-block animate-fadeIn">About</a>
+        <a href="{{'#m-section' if title not in ['Login', 'Register'] else url_for('home')}}" class="text-white px-4 rounded-lg hover:bg-blue-700 transition duration-200 inline-block animate-fadeIn">Movies</a>
+        <a href="{{'#contact-section' if title not in ['Login', 'Register'] else url_for('home')}}" class="text-white px-4 rounded-lg hover:bg-blue-700 transition duration-200 inline-block animate-fadeIn">Contact</a>
+
+        <hr class="my-4 border-slate-600">
+
+        <div class="flex gap-3">
+            <a href="{{ '#' if title == 'Login' else url_for('login') }}">
+                <button class="w-24 bg-blue-700 text-white px-5 py-1.5 rounded-lg hover:bg-gray-900 transition animate-fadeIn"
+                        style="font-family: Arial, sans-serif;">
+                    Login
+                </button>
+            </a>
+
+            <a href="{{ '#' if title == 'Register' else url_for('register') }}">
+                <button class="w-24 bg-slate-700 text-white px-5 py-1.5 rounded-lg hover:bg-gray-900 transition animate-fadeIn"
+                        style="font-family: Arial;">
+                    Register
+                </button>
+            </a>
+        </div>
+    </div>
+
+    <main class="main-container flex-col bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900">
+        {%block content%}{%endblock%}
+    </main>
+
+    <script>
+        function showSidebar() {
+            document.getElementById("mobileSidebar").classList.remove("hidden");
+        }
+
+        function hideSidebar() {
+            document.getElementById("mobileSidebar").classList.add("hidden");
+        }
+        
+    </script>
+</body>
+</html>
