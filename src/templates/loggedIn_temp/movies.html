@@ -1,0 +1,119 @@
+{% extends 'auth_layout.html' %}
+{% block content %}
+    <section class="flex mx-65 flex-wrap flex-col">
+        
+        <form method="GET" action="{{ url_for('movies') }}" class="flex flex-col gap-3 animate-popUp">
+             {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        {% if category == "success" %}
+                            <div class="mb-4 text-center text-xl text-green-400 alert-{{category}}">
+                                {{message}}
+                            </div>
+                        {% else %}
+                            <div class="mb-4 text-center text-xl text-red-400 alert-{{category}}">
+                            {{message}}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <h1 class="text-white font-serif text-3xl mb-6 ">Search Movie</h1>
+            <input type="text" name="title" placeholder="Search movie..." required class="p-3 w-64 bg-slate-600 text-white rounded-xl">
+            <button type="submit" class="bg-slate-600 text-white px-5 py-1.5 rounded-lg hover:bg-gray-900 transition w-[8rem]">Search</button>
+        </form>
+
+        <hr class="w-96 mt-10 animate-popRight">
+
+
+        {% if movie_list %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 mt-10  p-4">
+            {% for m in movie_list %}
+            <div class="bg-gradient-to-r from-slate-800 via-slate-900 to-blue-950 p-3 rounded-2xl items-center gap-4 animate-glow-breath animate-popRight flex flex-col xl:flex-row transition duration-300 ease-in-out
+               hover:scale-115">
+                <div>
+                <img src="{{ m.poster }}" class="w-32 h-40 rounded-2xl object-contain">
+                </div>
+                
+                <div class="flex flex-col flex-1 text-center xl:text-start">
+                    <h1 class="text-white">{{m.movie_title}}</h1>
+                    <h1 class="text-white font-italic">({{m.year}})</h1>
+                    <h1 class="text-white font-serif mt-2">{{m.runtime}} mins</h1>
+                    <a href="{{ m.url }}" target="_blank" class="mt-4 underline text-white hover:text-gray-700">View Movie</a>
+                </div>
+
+                <div class="flex flex-col items-center">
+                    <button
+                        type="button"
+                        class="addFavBtn text-pink-500 text-4xl hover:scale-125 transition duration-300"
+                        data-type="favorites"
+                        data-title="{{ m.movie_title }}"
+                        data-year="{{ m.year }}"
+                        data-runtime="{{ m.runtime }}"
+                        data-url="{{ m.url }}"
+                        data-poster="{{ m.poster }}"
+                    >
+                    ♥
+                    </button>
+
+                    <button
+                        type="button"
+                        class="addWatchBtn text-green-500 text-4xl hover:scale-125 transition duration-300"
+                        data-type="watchlist"
+                        data-title="{{ m.movie_title }}"
+                        data-year="{{ m.year }}"
+                        data-runtime="{{ m.runtime }}"
+                        data-url="{{ m.url }}"
+                        data-poster="{{ m.poster }}"
+                    >
+                    ⚇
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+            <p class="mt-10 text-white animate-popRight">No movies found.</p>
+        {% endif %}
+
+        <div id="addFavModal" class="fixed hidden inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+            <div class="bg-gradient-to-r from-slate-800 via-slate-900 to-blue-950 rounded-xl flex flex-col shadow-xl p-6 w-80 text-center gap-3">
+
+                <h1 class="text-white text-xl font-serif">Add to Folder</h1>
+                <hr class="w-full border-gray-600">
+
+                <form id="addMovieForm" method="POST" class="flex flex-col gap-3">
+                    <input type="hidden" name="title" id="movieTitle">
+                    <input type="hidden" name="year" id="movieYear">
+                    <input type="hidden" name="runtime" id="movieRuntime">
+                    <input type="hidden" name="url" id="movieUrl">
+                    <input type="hidden" name="poster" id="moviePoster">
+
+                    {% for category, folder_dict in folders.items() %}
+                        {% for folder_name in folder_dict.keys() %}
+                            <button
+                                type="submit"
+                                name="folder"
+                                value="{{ folder_name }}"
+                                data-category="{{ category }}"
+                                class="folder-btn hidden bg-blue-900 w-full rounded-xl p-4 hover:bg-gray-800 transition text-white"
+                            >
+                                {{ folder_name }}
+                            </button>
+                        {% endfor %}
+                    {% endfor %}
+                </form>
+
+                <button id="closeAddFolderBtn" class="underline text-red-400 mt-3 hover:bg-red-700 hover:no-underline hover:text-white transition h-10 rounded-xl">
+                    Cancel
+                </button>
+
+            </div>
+        </div>
+
+        <div id="watchModal">
+            
+        </div>
+    </section>
+{% endblock %}

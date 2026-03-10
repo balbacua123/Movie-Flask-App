@@ -1,0 +1,71 @@
+{% extends 'auth_layout.html'%}
+{% block content%}
+    <section class="flex mx-65 flex-wrap flex-col">
+         {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        {% if category == "success" %}
+                            <div class="mb-4 text-center text-xl text-green-400 alert-{{category}}">
+                                {{message}}
+                            </div>
+                        {% else %}
+                            <div class="mb-4 text-center text-xl text-red-400 alert-{{category}}">
+                            {{message}}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        <h1 class="text-white text-3xl font-serif animate-popUp">Watchlist:</h1>
+        {% if wgroupedFolder %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 mt-10 p-4">
+        {% for folder_name, posters in wgroupedFolder.items() %}
+            <div class="bg-gradient-to-r from-slate-800 via-slate-900 to-blue-950 h-50 items-center justify-center p-6 rounded-2xl gap-10 animate-glow-breath animate-popRight flex flex-col cursor-pointer transition duration-300 ease-in-out
+            hover:scale-110">
+                <form action="{{url_for('open_folder', table='Watchlist', folder_name=folder_name)}}" method="POST">
+                    <button type="submit">
+                        <h1 class="text-white text-2xl font-serif mb-6">{{ folder_name }}</h1>
+                        <div class="flex flex-start gap-2 items-center">
+                            {% set valid_posters = posters | select('string') | reject('equalto', 'None') | list %}
+                            {% if valid_posters|length > 0 %}
+                                {% for poster in valid_posters[:3] %}
+                                    <img src="{{ poster }}" class="w-28 h-auto rounded-xl">
+                                {% endfor %}
+                            {% else %}
+                                <img src="{{ url_for('static', filename='icons/addfolder.png') }}" class="w-28 h-auto rounded-xl">
+                            {% endif %}
+                        </div>
+                    </button>
+                </form>
+            </div>
+            
+        {% endfor %}
+            <div id="folderBtn" class="bg-gradient-to-r from-slate-800 via-slate-900 to-blue-950 p-3 rounded-2xl flex justify-center w-full h-full items-center gap-4 animate-glow-breath animate-popRight flex flex-col xl:flex-row cursor-pointer transition duration-300 ease-in-out
+               hover:scale-110">
+               <img src="{{url_for('static', filename='icons/plus.png')}}" alt="" class="w-12">
+               <h1 class="text-white">Add Folder</h1>
+            </div>
+        </div>
+
+        {% else %}
+            <div id="folderBtn" class="bg-gradient-to-r from-slate-800 via-slate-900 to-blue-950 p-3 flex justify-center rounded-2xl w-64 items-center gap-4 animate-glow-breath animate-popRight flex flex-col xl:flex-row cursor-pointer transition duration-300 ease-in-out mt-6
+               hover:scale-110">
+               <img src="{{url_for('static', filename='icons/plus.png')}}" alt="" class="w-12">
+               <h1 class="text-white">Add Folder</h1>
+            </div>
+        {% endif %}
+        
+        <div id="folderModal" class="fixed hidden inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+            <div class="bg-gradient-to-r from-slate-800 via-slate-900 to-blue-950 rounded-xl flex flex-col shadow-xl p-6 w-80 h-auto text-center gap-3">
+                <h1 class="text-white text-xl">Make a folder</h1>
+                <form action="{{url_for('add_folder', add_in='watchlist') }}" method="POST">
+                    <input type="text" name="folder_name" placeholder="Folder Name" required class="p-3 w-64 bg-slate-600 text-white rounded-xl">
+                    <div class="flex gap-3 justify-center">
+                        <button type="submit" class="mt-3 text-left bg-blue-600 p-2 rounded-3xl font-serif hover:bg-gray-900 text-white transition">Create</button>
+                        <button id="cancelFolder"class="mt-3 text-left bg-red-600 p-2 rounded-3xl font-serif hover:bg-gray-900 text-white transition">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+{% endblock %}

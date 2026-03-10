@@ -1,0 +1,49 @@
+{% extends 'auth_layout.html'%}
+{% block content %}
+    <section class="flex mx-65 flex-wrap flex-col text-center xl:text-start">
+        <h1 class="text-white text-3xl font-serif animate-fadeSlideUp">Welcome, {{current_user.username}}</h1>
+
+        <div class="flex mt-20 gap-20 flex-wrap animate-fadeSlideUp justify-center xl:justify-start">
+            
+            <div class="bg-slate-400 w-80 h-36 p-5 rounded-2xl animate-glow-breath">
+                <h1 class="text-white text-xl font-sans">Total Movies: </h1>
+                <h1 class="text-white text-center text-3xl font-serif mt-2">{{movies_count.fav_count + movies_count.watchlist_count}}</h1>
+            </div>
+            <div class="bg-slate-500 w-80 h-36 p-5 rounded-2xl animate-glow-breath">
+                <h1 class="text-white text-xl font-sans">Favorites:</h1>
+                <h1 class="text-white text-center text-3xl font-serif mt-2">{{movies_count.fav_count}}</h1>
+            </div>
+            <div class="bg-slate-600 w-80 h-36 p-5 rounded-2xl animate-glow-breath">
+                <h1 class="text-white text-xl font-sans">Watchlist:</h1>
+                <h1 class="text-white text-center text-3xl font-serif mt-2">{{movies_count.watchlist_count}}</h1>
+            </div>
+        </div>
+
+        <h1 class="text-white text-3xl font-serif mt-20 animate-popRight">Recently Added:</h1>
+        {% if recent_movies %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 mt-10">
+            {% for m in recent_movies %}
+            <div class="bg-gradient-to-r from-slate-800 via-slate-900 to-blue-950 rounded-2xl items-center gap-4 animate-glow-breath animate-popRight flex flex-col xl:flex-row cursor-pointer transition duration-300 ease-in-out
+               hover:scale-110">
+                <div>
+                <img src="{{ m.poster }}" class="w-32 h-40 rounded-2xl object-contain">
+                </div>
+                
+                <div class="flex flex-col flex-1 text-center xl:text-start">
+                    <h1 class="text-white">{{m.movie_title}}</h1>
+                    <h1 class="text-white font-italic">({{m.year}})</h1>
+                    <h1 class="text-white font-serif mt-2">{{m.runtime}} mins</h1>
+                    <a href="{{ m.url }}" target="_blank" class="mt-4 underline text-white hover:text-gray-700">View Movie</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+            <p class="mt-10 text-white animate-popRight">No movies found.</p>
+        {% endif %}
+        
+    </section>
+
+
+{% endblock %}
