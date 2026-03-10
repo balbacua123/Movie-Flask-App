@@ -1,0 +1,153 @@
+* {
+  scroll-behavior: smooth;
+}
+
+body::-webkit-scrollbar {
+    display: none;  
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;  
+    scrollbar-width: none;    
+}
+
+#m-section, #contact-section, #home-section  {
+    background-image: url('img/test.gif');
+    background-position: center;
+    background-attachment: fixed;
+}
+
+
+#body-auth-layout{
+    background-image: url('img/auth-bg.gif');
+    background-position: center;
+    background-attachment: fixed;
+    
+}
+
+#login-body{
+  background-image: url('img/auth-bg.gif');
+    background-position: center;
+    background-attachment: fixed;
+    
+}
+
+@keyframes glow-breath {
+  0%, 100% { box-shadow: 0 0 10px rgba(0, 68, 255, 0.6); }
+  50% { box-shadow: 0 0 15pxr rgb(0, 68, 255); }
+}
+
+.animate-glow-breath {
+  animation: glow-breath 4s ease-in-out infinite;
+}
+
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeSlideUp {
+  animation: fadeSlideUp 2s ease-in-out;
+}
+
+
+@keyframes popRight {
+  0% {
+    opacity: 0;
+    transform: translateX(25px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-popRight {
+  animation: popRight 1s ease-in-out;
+}
+
+@keyframes popUp {
+  0% {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-popUp {
+  animation: popUp 1.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 1.5s ease-in;
+}
+
+
+@keyframes popBar {
+  0% {
+    opacity: 0;
+    transform: translateX(25px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-popBar {
+  animation: popBar 0.5s ease-in-out;
+}
+
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.scrolling-carousel {
+  display: flex;
+  width: max-content;
+  animation: scroll 60s linear infinite;
+}
+
+.carousel-wrapper:hover .scrolling-carousel {
+  animation-play-state: paused; 
+}
+
+@keyframes darkToBlue {
+  0% {
+    color: #111;      
+
+  }
+  100% {
+    color: #1e90ff;   
+  }
+}
+
+.animate-text {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #111;
+  animation: darkToBlue 2s infinite;
+}
