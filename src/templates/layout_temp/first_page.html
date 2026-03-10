@@ -1,0 +1,128 @@
+{% extends "layout.html"%}
+{% block content %}
+    <section id="home-section" class="h-screen bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 flex flex-col-reverse md:flex-row items-center justify-center p-4 gap-10">
+        <div class="text-section flex flex-col gap-3 max-w-md text-center md:text-left">
+            <h1 class="text-4xl text-white font-serif animate-fadeSlideUp">MovieFy</h1>
+            <p class="text-white font-light animate-fadeSlideUp">
+                MovieFy is your personal movie companion — track favorites, manage your watchlist, and discover insights about your unique movie taste.
+            </p>
+            <div class="btn-section flex gap-3 justify-center md:justify-start mt-2 animate-fadeSlideUp">
+                <a href="{{url_for('register')}}">
+                    <button class="bg-blue-700 text-white px-5 py-1.5 rounded-lg hover:bg-gray-900 transition">Get Started</button>
+                </a>
+                <a href="#about-section">
+                    <button class="bg-slate-700 text-white px-5 py-1.5 rounded-lg hover:bg-gray-900 transition">Learn More</button>
+                </a>
+            </div>
+        </div>
+
+        <div class="img-section w-48 h-48 md:w-64 md:h-64 flex justify-center items-center">
+            <img src="{{url_for('static', filename='img/home-picture.png')}}" alt="MovieFy Image"
+                class="w-full h-full object-cover rounded-full border-4 border-white animate-glow-breath animate-fadeSlideUp">
+        </div>
+    </section>
+
+    <section id="about-section" class="h-1/2 bg-gradient-to-r from-blue-950 via-slate-900 to-blue-900 flex flex-col items-center text-center">
+        <h1 class="text-center text-4xl font-bold text-white font-serif mt-24 mb-3 animate-popRight">ABOUT</h1>
+        <div class="flex items-center justify-center gap-3 w-full mb-3 animate-fadeIn">
+            <hr class="w-36 sm:w-64 md:w-96 border-gray-200">
+            <span class="w-2 h-2 bg-white rounded-full inline-block"></span>
+            <hr class="w-36 sm:w-64 md:w-96 border-gray-200">
+        </div>
+
+        <div class="mt-6 flex flex-col xl:flex-row mb-24 gap-16 xl:gap-36">
+            <div class="flex flex-col items-center gap-6">
+                <img src="{{url_for('static', filename='icons/clapperboard.png')}}" class="bg-white w-20 h-20 object-cover rounded-full border-4 border-white animate-fadeSlideUp">
+                <h1 class="w-96 text-white font-light animate-popRight" style="font-family:Arial, Helvetica, sans-serif">MovieFy transforms movie tracking into a cinematic experience. Every title, poster, and detail is part of your personal story, and beauty of cinema.</h1>
+            </div>
+
+            <div class="flex flex-col items-center gap-6">
+                <img src="{{url_for('static', filename='icons/rocket.png')}}" class="bg-white w-20 h-20 object-cover rounded-full border-4 border-white animate-fadeSlideUp">
+                <h1 class="w-96 text-white font-light animate-popRight" style="font-family:Arial, Helvetica, sans-serif">MovieFy creates a space where movies live and breathe. Discover new films, organize your favorites, and explore your collection with a sense of wonder.</h1>
+            </div>
+
+            <div class="flex flex-col items-center gap-6">
+                <img src="{{url_for('static', filename='icons/tao.png')}}" class="bg-white w-20 h-20 object-cover rounded-full border-4 border-white animate-fadeSlideUp">
+                <h1 class="w-96 text-white font-light animate-popRight" style="font-family:Arial, Helvetica, sans-serif">Your movies, your taste, your journey. MovieFy adapts to your preferences, helping you rediscover classics and uncover hidden gems.</h1>
+            </div>
+        </div>
+    </section>
+
+    <section id="m-section" class="min-h-screen bg-gradient-to-r from-slate-950 via-blue-900 to-slate-950 flex flex-col items-center px-4 md:px-12">
+        <h1 class="text-white text-4xl font-bold font-serif mt-12 md:mt-24 mb-12 md:mb-24 text-center">1000+ Movies</h1>
+
+        <div class="carousel-wrapper flex overflow-x-auto w-full gap-6 py-4 hide-scrollbar">
+            <div class="scrolling-carousel flex gap-6">
+                {% for m in movies_carousel %}
+                <div class="bg-gradient-to-br from-blue-950 via-blue-900/70 to-blue-950/80 
+                            p-4 rounded-2xl flex flex-col items-center gap-3 min-w-[320px] min-h-[300px] 
+                            cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl relative overflow-hidden flex-shrink-0">
+                    
+                    <div class="relative w-32 h-44">
+                        <img src="{{ m.poster }}" 
+                            class="w-full h-full rounded-2xl object-cover shadow-lg transition-all duration-300 hover:shadow-2xl">
+
+                        <div class="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+                    </div>
+
+                    <div class="flex flex-col flex-1 mt-2">
+                        <h1 class="text-white text-lg font-bold text-center truncate">{{ m.movie_title }}</h1>
+                        <h2 class="text-white/70 italic text-center mt-1">({{ m.year }})</h2>
+                    </div>
+                    <a href="{{url_for('login')}}" class="cursor-pointer">
+                        <div class="absolute top-3 right-3 text-pink-500 text-xl opacity-80 hover:opacity-100 transition-opacity duration-200">
+                            ♥
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-3 text-center items-center md:mb-16 px-4">
+            <h1 class="text-white text-4xl font-bold font-serif mt-8 md:mt-12">Choose Your Favorites and <span class="text-blue-500 animate-text">Build Your Watchlist</span></h1>
+
+            <p class="text-white text-md w-full md:w-4/5 text-center text-light mt-4">
+                Discover, select, and keep track of the movies that speak to you. Whether it’s thrilling adventures, heartwarming stories, mind-bending mysteries, or epic blockbusters, you can easily mark your favorites and create a personalized watchlist. Track what you’ve seen, plan what to watch next, and never lose sight of the films that matter most to you. From timeless classics to the latest releases, your watchlist becomes your ultimate guide to the cinematic worlds you love. Keep it updated, explore new genres, and make every movie night unforgettable.
+            </p>
+        </div>
+    </section>
+
+    <section id="contact-section" class="h-screen flex justify-center items-center bg-gradient-to-r from-blue-950 via-slate-900 to-blue-900 px-4">
+        <div class="bg-gradient-to-r from-blue-950 via-slate-900 to-blue-900 w-full max-w-xl p-8 rounded-3xl shadow-xl flex flex-col items-center animate-glow-breath">
+            <h1 class="text-4xl md:text-5xl font-serif text-white mb-8">Contact Me</h1>
+
+            <form action="" class="w-full flex flex-col gap-4">
+                <input 
+                    type="email" 
+                    class="p-4 w-full bg-slate-700 text-white rounded-xl placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" 
+                    placeholder="Your Email" 
+                    required
+                >
+                <input 
+                    type="text" 
+                    class="p-4 w-full bg-slate-700 text-white rounded-xl placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" 
+                    placeholder="Subject" 
+                    required
+                >
+                <textarea 
+                    class="p-4 w-full bg-slate-700 text-white rounded-xl placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none h-40" 
+                    placeholder="Message" 
+                    required
+                ></textarea>
+                <button 
+                    type="submit" 
+                    class="w-full bg-blue-700 hover:bg-blue-600 text-white py-3 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg"
+                >
+                    Send Message
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900 text-white py-8 px-4">
+        <div class="text-white/50 text-center text-sm">
+            &copy; 2026 Moviefy. All rights reserved.
+        </div>
+    </footer>
+{% endblock %}
