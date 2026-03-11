@@ -4,3 +4,4 @@ Flask-Bcrypt
 python-dotenv
 requests
 flask-pymysql
+cryptography
