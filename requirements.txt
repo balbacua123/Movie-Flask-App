@@ -1,4 +1,6 @@
 Flask
+Flask-Login
+Flask-Bcrypt
+python-dotenv
 requests
 mysql-connector-python
-gunicorn
