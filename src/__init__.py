@@ -3,8 +3,9 @@ from flask_pymysql import MySQL
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from dotenv import load_dotenv
-load_dotenv()
 import os
+
+load_dotenv()
 
 app = Flask(__name__, template_folder='templates')
 
@@ -24,4 +25,5 @@ login_manager.login_view = "login"
 login_manager.login_message_category = "info"
 
 from src import routes
+
 
