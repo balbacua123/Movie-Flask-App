@@ -3,6 +3,5 @@ Flask-Login
 Flask-Bcrypt
 python-dotenv
 requests
-flask-pymysql
+PyMySQL
 cryptography
-
