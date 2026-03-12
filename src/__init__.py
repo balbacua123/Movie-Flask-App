@@ -1,5 +1,5 @@
 from flask import Flask
-import pymysql  # Replace flask_pymysql
+import pymysql
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from dotenv import load_dotenv
@@ -27,3 +27,4 @@ login_manager.login_view = "login"
 login_manager.login_message_category = "info"
 
 from . import routes
+
