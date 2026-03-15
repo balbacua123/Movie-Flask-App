@@ -1,7 +1,9 @@
 Flask
-Flask-Login
 Flask-Bcrypt
+Flask-Login
+Flask-MySQLdb
+Flask-WTF
+WTForms
 python-dotenv
 requests
-PyMySQL
-cryptography
+mysqlclient
