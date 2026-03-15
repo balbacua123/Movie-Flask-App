@@ -16,7 +16,8 @@ app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
 app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
 app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
 app.config['MYSQL_PORT'] = 27397
-app.config['MYSQL_SSL_CA'] = os.getenv('MYSQL_SSL_CA')
+app.config['MYSQL_SSL_CA'] = os.getenv('MYSQL_SSL_CA', None)
+app.config['MYSQL_SSL_VERIFY_CERT'] = False
 
 mysql = MySQL(app)
 bcrypt = Bcrypt(app)
