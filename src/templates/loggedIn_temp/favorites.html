@@ -29,7 +29,7 @@
                         {% set valid_posters = posters | select('string') | reject('equalto', 'None') | list %}
                         {% if valid_posters|length > 0 %}
                             {% for poster in valid_posters[:3] %}
-                                <img src="{{ poster }}" class="w-28 h-auto rounded-xl">
+                                <img src="{{ poster }}" class="w-16 h-auto rounded-xl xl:w-28">
                             {% endfor %}
                         {% else %}
                             <img src="{{ url_for('static', filename='icons/addfolder.png') }}" class="w-28 h-auto rounded-xl">
