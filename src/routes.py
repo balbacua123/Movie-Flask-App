@@ -1,4 +1,6 @@
 from flask import render_template, url_for, redirect, flash, request
+import traceback
+import logging
 from src import app, mysql, bcrypt, login_manager
 from flask_login import login_user, login_required, current_user, logout_user
 from src.forms import RegistrationForm, LoginForm
@@ -42,11 +44,13 @@ def register():
     
     form = RegistrationForm()
     if form.validate_on_submit():
-
-        register_acc((form.username.data, form.email.data, form.password.data))
-
-        flash('Your account has been created!', 'success')
-        return redirect(url_for('login'))
+        try:
+            register_acc(form.username.data, form.email.data, form.password.data)
+            flash('Your account has been created!', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            logging.error(traceback.format_exc())
+            flash(str(e), 'danger')
     
     return render_template('layout_temp/register.html', title='Register', form=form)
 
@@ -121,7 +125,6 @@ def auth_user():
     recent_movies = get_user_recently_added(current_user.id)
 
     return render_template('loggedIn_temp/dashboard.html', title='Welcome', movies_count=movies_count, recent_movies=recent_movies)
-
 
 
 @app.route('/add_movie/<add_type>', methods=['POST'])
