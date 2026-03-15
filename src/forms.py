@@ -11,24 +11,18 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField("Create Account")
 
     def validate_email(self, email):
-        db = get_db_connection()
-        try:
-            with db.cursor() as cur:
-                cur.execute("SELECT user_id FROM Users WHERE email=%s", (email.data,))
-                if cur.fetchone():
-                    raise ValidationError("Email is already in use.")
-        finally:
-            db.close()
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT user_id FROM Users WHERE email=%s", (email.data,))
+        if cur.fetchone():
+            raise ValidationError("Email is already in use.")
+        cur.close()
 
     def validate_username(self, username):
-        db = get_db_connection()
-        try:
-            with db.cursor() as cur:
-                cur.execute("SELECT user_id FROM Users WHERE username=%s", (username.data,))
-                if cur.fetchone():
-                    raise ValidationError("Username is already taken.")
-        finally:
-            db.close()
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT user_id FROM Users WHERE username=%s", (username.data,))
+        if cur.fetchone():
+            raise ValidationError("Username is already taken.")
+        cur.close()
 
 class LoginForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired(), Length(min=5, max=20)])
