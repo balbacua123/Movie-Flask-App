@@ -56,7 +56,7 @@ def search_movies(movie_title):
         return [], None
 
  
-    with ThreadPoolExecutor(max_workers=15) as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         trailer_links = list(executor.map(lambda item: fetch_trailer_for_movie(item, headers), movie_results))
 
     for item, trailer_link in zip(movie_results, trailer_links):
