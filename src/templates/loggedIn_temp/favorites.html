@@ -25,11 +25,11 @@
                 <form action="{{url_for('open_folder', table='Favorites', folder_name=folder_name)}}" method="POST">
                     <button type="submit">
                     <h1 class="text-white text-2xl font-serif mb-6">{{ folder_name }}</h1>
-                    <div class="flex flex-start gap-2 items-center">
+                    <div class="flex flex-start gap-2 items-center ">
                         {% set valid_posters = posters | select('string') | reject('equalto', 'None') | list %}
                         {% if valid_posters|length > 0 %}
                             {% for poster in valid_posters[:3] %}
-                                <img src="{{ poster }}" class="w-16 h-auto rounded-xl xl:w-28">
+                                <img src="{{ poster }}" class="w-16 h-auto rounded-xl xl:w-24">
                             {% endfor %}
                         {% else %}
                             <img src="{{ url_for('static', filename='icons/addfolder.png') }}" class="w-28 h-auto rounded-xl">

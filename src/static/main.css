@@ -15,7 +15,7 @@ body::-webkit-scrollbar {
 }
 
 #m-section, #contact-section, #home-section  {
-    background-image: url('img/test_qwe.gif');
+    background-image: url('img/f2QZBNF.gif');
     background-position: center;
     background-attachment: fixed;
 }
@@ -151,4 +151,3 @@ body::-webkit-scrollbar {
   color: #111;
   animation: darkToBlue 2s infinite;
 }
-

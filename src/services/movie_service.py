@@ -1,39 +1,81 @@
-from src import mysql
+from src import mysql, app
 from MySQLdb.cursors import DictCursor
 from collections import defaultdict
 from flask import flash
+from concurrent.futures import ThreadPoolExecutor
 import requests
 
+API_TOKEN = app.config.get('API_KEY')
+BASE_IMG_URL = "https://image.tmdb.org/t/p/w500"
+COMING_SOON_URL = "https://img.freepik.com/free-vector/coming-soon-background-with-focus-light-effect-design_1017-27277.jpg?semt=ais_incoming&w=740&q=80"
+
+def fetch_trailer_for_movie(item, headers):
+    movie_id = item.get('id')
+    if not movie_id:
+        return "N/A"
+        
+    video_url = f"https://api.themoviedb.org/3/movie/{movie_id}/videos"
+    try:
+        video_response = requests.get(video_url, headers=headers, timeout=2)
+        video_response.raise_for_status()
+        video_data = video_response.json().get("results", [])
+
+        for vid in video_data:
+            if vid.get("type") == "Trailer" and vid.get("site") == "YouTube":
+                return f"https://www.youtube.com/watch?v={vid.get('key')}"
+    except Exception:
+        pass
+    
+    return "N/A"
 
 def search_movies(movie_title):
-
     movies = []
 
-    if movie_title and len(movie_title) > 100:
+    if not movie_title:
+        return [], None
+
+    if len(movie_title) > 100:
         return None, 'Title is invalid or too long'
     
-    if movie_title:
-        response = requests.get(
-            "https://imdb.iamidiotareyoutoo.com/justwatch",
-            params={"q": movie_title}
-        )
+    url = "https://api.themoviedb.org/3/search/movie"
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {API_TOKEN}"
+    }
+    params = {"query": movie_title}
 
+    try:
+        response = requests.get(url, headers=headers, params=params, timeout=5)
+        response.raise_for_status()
         result = response.json()
+        movie_results = result.get("results", [])
+    except Exception as e:
+        return None, f"Search failed: {str(e)}"
 
-        if result.get("description"):
-            for item in result["description"]:
-                photos = item.get("photo_url", [])
-                poster = photos[0] if photos else "N/A"
+    if not movie_results:
+        return [], None
 
-                movies.append({
-                    "movie_title": item.get('title'),
-                    "year": item.get('year'),
-                    "poster": poster,
-                    "runtime": item.get('runtime'),
-                    "url": item.get('url')
-                })
+ 
+    with ThreadPoolExecutor(max_workers=15) as executor:
+        trailer_links = list(executor.map(lambda item: fetch_trailer_for_movie(item, headers), movie_results))
 
-    return movies, None 
+    for item, trailer_link in zip(movie_results, trailer_links):
+        poster_path = item.get("poster_path")
+        full_poster = BASE_IMG_URL + poster_path if poster_path else COMING_SOON_URL
+
+        release_date = item.get('release_date')
+        year = release_date[:4] if release_date else "N/A"
+
+        movies.append({
+            "movie_title": item.get('title'),
+            "year": year,
+            "poster": full_poster,
+            "overview": item.get('overview'),
+            "original_language": item.get('original_language'),
+            "trailer": trailer_link,
+        })
+
+    return movies, None
 
 def get_movies():
 
@@ -50,7 +92,7 @@ def get_user_recently_added(user_id):
 
     cur = mysql.connection.cursor(DictCursor)
     cur.execute(
-        """SELECT u.username, m.movie_title, m.year, m.runtime, m.url, m.poster, f.date_added AS added_at
+        """SELECT u.username, m.movie_title, m.year, m.original_language, m.trailer, m.poster, f.date_added AS added_at
             FROM Users u
             JOIN Favorites f ON u.user_id = f.user_id
             JOIN Movies m ON m.movie_id = f.movie_id
@@ -58,7 +100,7 @@ def get_user_recently_added(user_id):
 
             UNION ALL
 
-            SELECT u.username, m.movie_title, m.year, m.runtime, m.url, m.poster, w.date_added AS added_at
+            SELECT u.username, m.movie_title, m.year, m.original_language, m.trailer, m.poster, w.date_added AS added_at
             FROM Users u
             JOIN WatchList w ON u.user_id = w.user_id
             JOIN Movies m ON m.movie_id = w.movie_id
@@ -91,56 +133,47 @@ def count_movies(user_id):
 
     return {"fav_count": favorites_count, "watchlist_count": watchlist_count}
 
-def movie_addition(user_id, add_type, movie_title, year, runtime, url, poster, folder_name):
-    if add_type == "favorites":
-        table = "Favorites"
-        other_table = "WatchList"
-    elif add_type == "watchlist":
-        table = "WatchList"
-        other_table = "Favorites"
-    else:
+def movie_addition(user_id, add_type, movie_title, year, overview, original_language, trailer, poster, folder_name):
+    valid_tables = {"favorites": "Favorites", "watchlist": "WatchList"}
+    if add_type not in valid_tables:
         return "Invalid type!", "danger"
+    
+    table = valid_tables[add_type]
+    other_table = "WatchList" if table == "Favorites" else "Favorites"
 
     cur = mysql.connection.cursor()
-    cur.execute(
-        "SELECT movie_id FROM Movies WHERE movie_title = %s",
-        (movie_title,)
-    )
-    movie = cur.fetchone()
+    try:
+        cur.execute("SELECT movie_id FROM Movies WHERE movie_title = %s AND year = %s", (movie_title, year))
+        movie = cur.fetchone()
 
-    if movie:
-        movie_id = movie[0]
-    else:
-        cur = mysql.connection.cursor()
-        cur.execute(
-            "INSERT INTO Movies (movie_title, year, runtime, url, poster) VALUES (%s, %s, %s, %s, %s)",
-            (movie_title, year, runtime, url, poster)
-        )
-        mysql.connection.commit()
-        movie_id = cur.lastrowid
-
-    cur.execute(
-        f"SELECT 1 FROM {other_table} WHERE user_id = %s AND movie_id = %s",
-        (user_id, movie_id)
-    )
-    if cur.fetchone():
-            flash(f"Movie already exist in your {other_table}", "warning")
-    else:
-        try:
-            
-            folder_id = get_folder_id(folder_name, user_id, table)
+        if movie:
+            movie_id = movie[0]
+        else:
             cur.execute(
-                f"INSERT INTO {table} (user_id, movie_id, folder_id) VALUES (%s, %s, %s)",
-                (user_id, movie_id, folder_id)
+                "INSERT INTO Movies (movie_title, year, overview, original_language, trailer, poster) VALUES (%s, %s, %s, %s, %s, %s)",
+                (movie_title, year, overview, original_language, trailer, poster)
             )
             mysql.connection.commit()
-            return f"{movie_title} added to {folder_name} in {table}!", "success"
-        except mysql.connection.Error:
-            return f"'{movie_title}' is already in your {table}.", "warning"
+            movie_id = cur.lastrowid
 
-    cur.close()
+        cur.execute(f"SELECT 1 FROM {other_table} WHERE user_id = %s AND movie_id = %s", (user_id, movie_id))
+        if cur.fetchone():
+            return f"Movie already exists in your {other_table}", "warning"
 
-    return None
+        folder_id = get_folder_id(folder_name, user_id, table)
+        if not folder_id:
+             return "Folder not found", "danger"
+
+        cur.execute(f"INSERT INTO {table} (user_id, movie_id, folder_id) VALUES (%s, %s, %s)", (user_id, movie_id, folder_id))
+        mysql.connection.commit()
+        return f"{movie_title} added successfully!", "success"
+
+    except Exception as e:
+        mysql.connection.rollback()
+        return f"Error: {str(e)}", "danger"
+    finally:
+        cur.close()
+        
 
 def remove_movie(user_id, remove_from, folder_name, movie_title):
 
@@ -238,7 +271,7 @@ def folder_opening(user_id, folder_name, table):
     folder_id = get_folder_id(folder_name, user_id, table)
 
     cur = mysql.connection.cursor(DictCursor)
-    cur.execute(f"SELECT m.movie_title, m.year, m.runtime, m.poster, m.url FROM {table} t " \
+    cur.execute(f"SELECT m.movie_title, m.year, m.original_language, m.poster, m.trailer FROM {table} t " \
     "JOIN Folder f ON f.folder_id = t.folder_id " \
     "JOIN Movies m  ON m.movie_id = t.movie_id " \
     "WHERE t.user_id = %s AND t.folder_id = %s", (user_id, folder_id))

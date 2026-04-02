@@ -1,6 +1,4 @@
 from flask import render_template, url_for, redirect, flash, request
-import traceback
-import logging
 from src import app, mysql, bcrypt, login_manager
 from flask_login import login_user, login_required, current_user, logout_user
 from src.forms import RegistrationForm, LoginForm
@@ -44,13 +42,10 @@ def register():
     
     form = RegistrationForm()
     if form.validate_on_submit():
-        try:
-            register_acc(form.username.data, form.email.data, form.password.data)
-            flash('Your account has been created!', 'success')
-            return redirect(url_for('login'))
-        except Exception as e:
-            logging.error(traceback.format_exc())
-            flash(str(e), 'danger')
+
+        register_acc(form.username.data, form.email.data, form.password.data)
+        flash('Your account has been created!', 'success')
+        return redirect(url_for('login'))
     
     return render_template('layout_temp/register.html', title='Register', form=form)
 
@@ -133,12 +128,13 @@ def add_movie(add_type):
     
     movie_title = request.form.get('title')
     year = request.form.get('year')
-    runtime = request.form.get('runtime')
-    url = request.form.get('url')
+    overview = request.form.get('overview')
+    original_language = request.form.get('original_language')
+    trailer = request.form.get('trailer')
     poster = request.form.get('poster')
     folder_name = request.form.get("folder")
 
-    message, result = movie_addition(current_user.id, add_type, movie_title, year, runtime, url, poster, folder_name)
+    message, result = movie_addition(current_user.id, add_type, movie_title, year, overview, original_language, trailer, poster, folder_name)
     
     flash(message, result)
 

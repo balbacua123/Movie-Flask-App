@@ -3,14 +3,14 @@ from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from dotenv import load_dotenv
-import os
-
 load_dotenv()
+import os
 
 app = Flask(__name__, template_folder='templates')
 
-app.config["SECRET_KEY"] = os.getenv('SECRET_KEY')
-
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['API_KEY'] = os.getenv('API_KEY')
+ 
 app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
 app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
 app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
