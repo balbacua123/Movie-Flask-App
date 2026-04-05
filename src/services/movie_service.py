@@ -1,11 +1,10 @@
-from src import mysql, app
+from src import mysql, app, API_TOKEN
 from MySQLdb.cursors import DictCursor
 from collections import defaultdict
 from flask import flash
 from concurrent.futures import ThreadPoolExecutor
 import requests
 
-API_TOKEN = app.config.get('API_KEY')
 BASE_IMG_URL = "https://image.tmdb.org/t/p/w500"
 COMING_SOON_URL = "https://img.freepik.com/free-vector/coming-soon-background-with-focus-light-effect-design_1017-27277.jpg?semt=ais_incoming&w=740&q=80"
 
