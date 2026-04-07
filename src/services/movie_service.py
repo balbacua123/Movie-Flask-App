@@ -1,33 +1,37 @@
-from src import mysql, app, API_TOKEN
+from src import mysql, app, asyncio
 from MySQLdb.cursors import DictCursor
 from collections import defaultdict
 from flask import flash
-from concurrent.futures import ThreadPoolExecutor
+import aiohttp
 import requests
 
+API_TOKEN = app.config.get('API_TOKEN')
 BASE_IMG_URL = "https://image.tmdb.org/t/p/w500"
 COMING_SOON_URL = "https://img.freepik.com/free-vector/coming-soon-background-with-focus-light-effect-design_1017-27277.jpg?semt=ais_incoming&w=740&q=80"
 
-def fetch_trailer_for_movie(item, headers):
+async def fetch_trailer_for_movie(session, item):
     movie_id = item.get('id')
     if not movie_id:
         return "N/A"
         
     video_url = f"https://api.themoviedb.org/3/movie/{movie_id}/videos"
-    try:
-        video_response = requests.get(video_url, headers=headers, timeout=2)
-        video_response.raise_for_status()
-        video_data = video_response.json().get("results", [])
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {API_TOKEN}"
+    }
 
-        for vid in video_data:
-            if vid.get("type") == "Trailer" and vid.get("site") == "YouTube":
-                return f"https://www.youtube.com/watch?v={vid.get('key')}"
+    try:
+       async with session.get( video_url, headers=headers, timeout=5) as response:
+            data = await response.json()
+            for vid in data.get('results', []):
+                if vid.get('type') == 'Trailer' and vid.get('site') == 'YouTube':
+                    return f"https://www.youtube.com/watch?v={vid.get('key')}"
     except Exception:
         pass
     
     return "N/A"
 
-def search_movies(movie_title):
+async def search_movies(movie_title):
     movies = []
 
     if not movie_title:
@@ -35,7 +39,7 @@ def search_movies(movie_title):
 
     if len(movie_title) > 100:
         return None, 'Title is invalid or too long'
-    
+
     url = "https://api.themoviedb.org/3/search/movie"
     headers = {
         "accept": "application/json",
@@ -44,35 +48,34 @@ def search_movies(movie_title):
     params = {"query": movie_title}
 
     try:
-        response = requests.get(url, headers=headers, params=params, timeout=5)
-        response.raise_for_status()
-        result = response.json()
-        movie_results = result.get("results", [])
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers, params=params, timeout=10) as response:
+                result = await response.json()
+                movie_results = result.get('results', [])
+            
+            if not movie_results:
+                return [], None
+
+            tasks = [fetch_trailer_for_movie(session, item) for item in movie_results]
+            trailer_links = await asyncio.gather(*tasks)
+
+            for item, trailer_link in zip(movie_results, trailer_links):
+                poster_path = item.get("poster_path")
+                full_poster = BASE_IMG_URL + poster_path if poster_path else COMING_SOON_URL
+                release_date = item.get('release_date')
+                year = release_date[:4] if release_date else "N/A"
+
+                movies.append({
+                    "movie_title": item.get('title'),
+                    "year": year,
+                    "poster": full_poster,
+                    "overview": item.get('overview') or "No overview available",
+                    "original_language": item.get('original_language'),
+                    "trailer": trailer_link,
+                })
+
     except Exception as e:
         return None, f"Search failed: {str(e)}"
-
-    if not movie_results:
-        return [], None
-
- 
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        trailer_links = list(executor.map(lambda item: fetch_trailer_for_movie(item, headers), movie_results))
-
-    for item, trailer_link in zip(movie_results, trailer_links):
-        poster_path = item.get("poster_path")
-        full_poster = BASE_IMG_URL + poster_path if poster_path else COMING_SOON_URL
-
-        release_date = item.get('release_date')
-        year = release_date[:4] if release_date else "N/A"
-
-        movies.append({
-            "movie_title": item.get('title'),
-            "year": year,
-            "poster": full_poster,
-            "overview": item.get('overview'),
-            "original_language": item.get('original_language'),
-            "trailer": trailer_link,
-        })
 
     return movies, None
 

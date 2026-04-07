@@ -1,5 +1,5 @@
 from flask import render_template, url_for, redirect, flash, request
-from src import app, mysql, bcrypt, login_manager
+from src import app, mysql, bcrypt, login_manager, asyncio
 from flask_login import login_user, login_required, current_user, logout_user
 from src.forms import RegistrationForm, LoginForm
 from src.models import User
@@ -96,7 +96,7 @@ def movies():
 
     movie_title = request.args.get("title")
     
-    movie_list, error = search_movies(movie_title)
+    movie_list, error = asyncio.run(search_movies(movie_title))
 
     if error:
         flash(error, 'warning')

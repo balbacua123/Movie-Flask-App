@@ -5,6 +5,8 @@ from flask_login import LoginManager
 from dotenv import load_dotenv
 load_dotenv()
 import os
+import asyncio
+
 
 app = Flask(__name__, template_folder='templates')
 
