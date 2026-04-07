@@ -92,11 +92,10 @@ def account():
 
 @app.route('/movies')
 @login_required
-def movies():
-
+async def movies():
     movie_title = request.args.get("title")
     
-    movie_list, error = asyncio.run(search_movies(movie_title))
+    movie_list, error = await search_movies(movie_title)
 
     if error:
         flash(error, 'warning')
